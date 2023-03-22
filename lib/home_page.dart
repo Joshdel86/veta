@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:intl/intl.dart';
+import 'package:veta/screens/Create_account.dart';
 import 'package:veta/screens/add_prouct.dart';
 
 import 'package:flutter/material.dart';
@@ -38,7 +39,11 @@ class _HomePageScreenState extends State<HomePageScreen> {
         ),
         floatingActionButton: FloatingActionButton(
           onPressed: () {
-            FirebaseAuth.instance.signOut();
+            FirebaseAuth.instance.signOut().then((value) =>
+                Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => RegistrationScreen())));
           },
           child: Icon(Icons.logout),
         ),
