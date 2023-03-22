@@ -17,6 +17,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
   final TextEditingController _lastNameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+  bool isVisible = true;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -28,7 +29,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
           child: SingleChildScrollView(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.stretch,
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: <Widget>[
                 SizedBox(
                   height: 40,
@@ -37,7 +38,28 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                   tag: 'logo',
                   child: Container(
                     height: 200.0,
-                    child: Image.asset('images/veta.png'),
+                    child: Image.asset(
+                      'images/veta.png',
+                      fit: BoxFit.contain,
+                    ),
+                  ),
+                ),
+                Text(
+                  'Your Online Pet',
+                  style: TextStyle(
+                    color: Colors.black,
+                    fontSize: 20,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+                Center(
+                  child: Text(
+                    'Store',
+                    style: TextStyle(
+                      color: Colors.black,
+                      fontSize: 20,
+                      fontWeight: FontWeight.w800,
+                    ),
                   ),
                 ),
                 SizedBox(height: 8),
@@ -46,13 +68,17 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                   'Create Account',
                   style: TextStyle(
                       color: Colors.black,
-                      fontSize: 40,
-                      fontWeight: FontWeight.bold),
+                      fontSize: 30,
+                      fontWeight: FontWeight.w800),
                 )),
                 SizedBox(
                   height: 48.0,
                 ),
                 BuildGeneralInput(
+                  prefix: Icon(
+                    Icons.person,
+                    color: Colors.black,
+                  ),
                   inputKeyboard: TextInputType.text,
                   maskText: false,
                   inputController: _firstNameController,
@@ -65,6 +91,10 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                 BuildGeneralInput(
                   inputKeyboard: TextInputType.text,
                   maskText: false,
+                  prefix: Icon(
+                    Icons.person,
+                    color: Colors.black,
+                  ),
                   inputController: _lastNameController,
                   onChanged: (value) {},
                   hint: 'Enter last name',
@@ -73,6 +103,10 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                   height: 8.0,
                 ),
                 BuildGeneralInput(
+                  prefix: Icon(
+                    Icons.email_outlined,
+                    color: Colors.black,
+                  ),
                   inputKeyboard: TextInputType.emailAddress,
                   maskText: false,
                   inputController: _emailController,
@@ -83,14 +117,25 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                   height: 8.0,
                 ),
                 BuildGeneralInput(
+                  prefix: Icon(
+                    Icons.password_outlined,
+                    color: Colors.black,
+                  ),
+                  suffix: GestureDetector(
+                    onTap: () {
+                      setState(() {
+                        isVisible = !isVisible;
+                      });
+                    },
+                    child: isVisible
+                        ? Icon(Icons.visibility)
+                        : Icon(Icons.visibility_off),
+                  ),
                   inputKeyboard: TextInputType.text,
-                  maskText: true,
+                  maskText: isVisible,
                   inputController: _passwordController,
                   onChanged: (value) {},
                   hint: 'Enter password',
-                ),
-                SizedBox(
-                  height: 8.0,
                 ),
                 SizedBox(
                   height: 24.0,
@@ -106,7 +151,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                         signUp();
                         //Implement registration functionality.
                       },
-                      minWidth: 200.0,
+                      minWidth: double.infinity,
                       height: 42.0,
                       child: Text(
                         'Sign Up',
@@ -115,6 +160,35 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                     ),
                   ),
                 ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      'Already have an account?? ',
+                      style: TextStyle(
+                        color: Colors.black,
+                        fontSize: 15,
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
+                    GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => LoginScreen()));
+                      },
+                      child: Text(
+                        'Login',
+                        style: TextStyle(
+                          color: Colors.blueAccent,
+                          fontSize: 15,
+                          fontWeight: FontWeight.w800,
+                        ),
+                      ),
+                    ),
+                  ],
+                )
               ],
             ),
           ),
@@ -137,22 +211,23 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
           .createUserWithEmailAndPassword(
               email: _emailController.text, password: _passwordController.text)
           .then((value) {
-        Navigator.push(
-            context, MaterialPageRoute(builder: (context) => LoginScreen()));
-        // FirebaseFirestore.instance
-        //     .collection('userData')
-        //     .doc(value.user!.uid)
-        //     .set({
-        //   'email': value.user!.email,
-        //   'first_name': _firstNameController.text,
-        //   'last_name': _lastNameController.text,
-        //   'password': _passwordController.text,
-        // });
+        // Navigator.push(
+        //     context, MaterialPageRoute(builder: (context) => LoginScreen()));
+        FirebaseFirestore.instance
+            .collection('userData')
+            .doc(value.user!.uid)
+            .set({
+          'email': value.user!.email,
+          'first_name': _firstNameController.text,
+          'last_name': _lastNameController.text,
+          'password': _passwordController.text,
+        });
       });
 
       Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (Context) => RegistrationScreen()));
+          MaterialPageRoute(builder: (Context) => LoginScreen()));
     } on FirebaseAuthException catch (e) {
+      Navigator.pop(context);
       failureSnackBar(context: context, message: e.message.toString());
     }
   }

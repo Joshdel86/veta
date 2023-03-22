@@ -1,3 +1,38 @@
+import 'package:flutter/material.dart';
+
+// class UpdateproductScreen extends StatefulWidget {
+//   final String image;
+//   final String name;
+//   final String breed;
+//   final String desc;
+//   final String price;
+//   UpdateproductScreen({
+//     required this.breed,
+//     required this.desc,
+//     required this.image,
+//     required this.name,
+//     required this.price
+//   });
+
+//   @override
+//   State<UpdateproductScreen> createState() => _UpdateproductScreenState();
+// }
+
+// class _UpdateproductScreenState extends State<UpdateproductScreen> {
+//   @override
+//   Widget build(BuildContext context) {
+//     return Scaffold(
+//       appBar: AppBar(
+//         title: Text(
+//           'Update Product Information'
+//         ),
+
+//       ),
+//       body: ,
+//     );
+//   }
+// }
+
 import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -12,14 +47,26 @@ import 'package:image_picker/image_picker.dart';
 
 import '../utils.dart';
 
-class AddProduct extends StatefulWidget {
-  const AddProduct({super.key});
+class UpdateProduct extends StatefulWidget {
+  final String image;
+  final String name;
+  final String breed;
+  final String desc;
+  final String price;
+  final String taskId;
+  UpdateProduct(
+      {required this.breed,
+      required this.desc,
+      required this.image,
+      required this.name,
+      required this.taskId,
+      required this.price});
 
   @override
-  State<AddProduct> createState() => _AddProductState();
+  State<UpdateProduct> createState() => _UpdateProductState();
 }
 
-class _AddProductState extends State<AddProduct> {
+class _UpdateProductState extends State<UpdateProduct> {
   final user = FirebaseAuth.instance.currentUser!;
   final _regKey = GlobalKey<FormState>();
   final TextEditingController _nameController = TextEditingController();
@@ -136,34 +183,16 @@ class _AddProductState extends State<AddProduct> {
                                     builder: (context) => productImagePicker());
                               },
                               child: Container(
-                                //inner container
-                                height: 200,
-                                width: double.infinity,
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(16),
-                                  color: Color(0xffECF3FC),
-                                  shape: BoxShape.rectangle,
-                                ),
-                                child: Column(
-                                  children: [
-                                    SizedBox(
-                                      height: 53.2,
-                                    ),
-                                    Icon(Icons.picture_in_picture),
-                                    SizedBox(
-                                      height: 24.11,
-                                    ),
-                                    Text(
-                                      'Max size limit of 2MB',
-                                    ),
-                                    SizedBox(
-                                      height: 8,
-                                    ),
-                                    Text(
-                                        'Only JPEG and PNG format are accepted')
-                                  ],
-                                ),
-                              ),
+                                  //inner container
+                                  height: 200,
+                                  width: double.infinity,
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(16),
+                                    color: Color(0xffECF3FC),
+                                    shape: BoxShape.rectangle,
+                                  ),
+                                  child:
+                                      Image(image: NetworkImage(widget.image))),
                             )),
                       )
                     : Container(
@@ -207,15 +236,13 @@ class _AddProductState extends State<AddProduct> {
                 SizedBox(
                   height: 20,
                 ),
+                inputField(inputController: _nameController, text: widget.name),
                 inputField(
-                    inputController: _nameController, text: 'Enter Name:'),
+                    inputController: _priceController, text: widget.price),
                 inputField(
-                    inputController: _priceController, text: 'Enter Price:'),
+                    inputController: _modelController, text: widget.breed),
                 inputField(
-                    inputController: _modelController, text: 'Enter Breed:'),
-                inputField(
-                    inputController: _descriptionController,
-                    text: 'Enter breed description:'),
+                    inputController: _descriptionController, text: widget.desc),
                 SizedBox(
                   height: 50,
                 ),
@@ -224,9 +251,9 @@ class _AddProductState extends State<AddProduct> {
                   width: double.infinity,
                   child: ElevatedButton(
                       onPressed: () {
-                        addProduct();
+                        updateProduct();
                       },
-                      child: Text('Submit')),
+                      child: Text('Update')),
                 )
               ],
             ),
@@ -346,7 +373,7 @@ class _AddProductState extends State<AddProduct> {
     );
   }
 
-  Future addProduct() async {
+  Future updateProduct() async {
     final isValid = _regKey.currentState!.validate();
     if (!isValid) return;
     if (imageUrl == null) {
@@ -367,22 +394,18 @@ class _AddProductState extends State<AddProduct> {
           petName: _nameController.text);
 
       try {
-        DocumentReference docRef = await FirebaseFirestore.instance
-            .collection(user.uid)
-            .add(breed.toJson());
-
-        String taskId = docRef.id;
-
         await FirebaseFirestore.instance
             .collection(user.uid)
-            .doc(taskId)
-            .update({'id': taskId});
+            .doc(widget.taskId)
+            .update(breed.toJson());
 
         Navigator.pop(context);
+        successSnackBar(
+            context: context, message: 'product updated successfully');
         Navigator.pop(context);
       } on FirebaseException catch (e) {
         Navigator.pop(context);
-        
+
         failureSnackBar(context: context, message: e.message.toString());
       }
     }

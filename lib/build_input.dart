@@ -1,16 +1,21 @@
 import 'package:flutter/material.dart';
 
 class BuildGeneralInput extends StatelessWidget {
-  BuildGeneralInput(
-      {required this.inputController,
-      required this.hint,
-      required this.maskText,
-      required this.inputKeyboard,
-      required this.onChanged});
+  BuildGeneralInput({
+    required this.inputController,
+    required this.hint,
+    required this.maskText,
+    required this.inputKeyboard,
+    required this.onChanged,
+    required this.prefix,
+     this.suffix,
+  });
 
   final TextEditingController inputController;
   void Function(String)? onChanged;
   final String hint;
+  Icon prefix;
+  Widget? suffix;
   final bool maskText;
   final TextInputType inputKeyboard;
 
@@ -29,7 +34,10 @@ class BuildGeneralInput extends StatelessWidget {
         }
       },
       decoration: InputDecoration(
+        prefixIcon: prefix,
         hintText: hint,
+      suffix: suffix,
+
         hintStyle: TextStyle(color: Colors.black),
         contentPadding: EdgeInsets.symmetric(vertical: 10.0, horizontal: 20.0),
         border: OutlineInputBorder(

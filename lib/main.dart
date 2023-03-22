@@ -1,29 +1,22 @@
-
-
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:veta/screens/login.dart';
 import 'package:veta/screens/splash_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:device_preview/device_preview.dart';
+
+import 'home_page.dart';
 
 Future main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
 
-
-
-  runApp(DevicePreview(
-    enabled : false,
-    builder :  (context) =>
-    
-    Veta()));
+  runApp(DevicePreview(enabled: false, builder: (context) => Veta()));
 }
 
 final navigatorKey = GlobalKey<NavigatorState>();
 
 class Veta extends StatelessWidget {
-
-
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -41,11 +34,12 @@ class Veta extends StatelessWidget {
                 child: Text('An error has occur'),
               );
             } else if (snapshot.hasData) {
-              return SplashScreen();
+              final user = FirebaseAuth.instance.currentUser!;
+              return HomePageScreen(id: user.uid,);
             } else {
               return SplashScreen();
             }
-          }), 
+          }),
     );
   }
 }
